@@ -9,6 +9,7 @@ import com.bumptech.glide.Glide
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_main.*
@@ -72,9 +73,15 @@ class MainActivity : AppCompatActivity() {
 
         val data1 = hashMapOf(
             "favourite" to "article 2",
-            "liked" to listOf("1", "2", "3")
+            "liked" to listOf("1", "2", "3"),
+            "sources" to hashMapOf(
+                "isMediumOn" to true,
+                "isDevtoOn" to true
+            )
         )
-        docRef.update("liked", FieldValue.arrayUnion("5"))
+        docRef.update(
+            FieldPath.of("sources", "isDevtoOn"), false
+        )
 
         docRef.get().addOnSuccessListener { document ->
             if (document != null) {
@@ -83,6 +90,8 @@ class MainActivity : AppCompatActivity() {
                 Log.d("333", "333")
             }
         }.addOnFailureListener { exception -> Log.d("222", "222") }
+
+        //docRef.set(data1)
 
 //        docRef.get().addOnSuccessListener { document ->
 //            if (document != null) {
