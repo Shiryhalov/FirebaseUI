@@ -5,25 +5,41 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import com.bumptech.glide.Glide
+import android.widget.Toast
 import com.firebase.ui.auth.AuthUI
-import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldPath
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.android.synthetic.main.activity_main.*
+
 
 class MainActivity : AppCompatActivity() {
+
+    private var currentUser = FirebaseAuth.getInstance().currentUser
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        createSignInIntent()
-        db()
+        // db()
+        if (currentUser == null) {
+            startAuth()
+        } else {
+            startActivity(Intent(this@MainActivity, SecondActivity::class.java))
+        }
     }
 
-    private fun createSignInIntent() {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == RC_SIGN_IN) {
+            if (resultCode == Activity.RESULT_OK) {
+                startActivity(Intent(this@MainActivity, SecondActivity::class.java))
+            } else {
+                Toast.makeText(this, "Sign In Failed", Toast.LENGTH_SHORT).show()
+                startAuth()
+            }
+        }
+    }
+
+    private fun startAuth() {
         val providers = arrayListOf(
             AuthUI.IdpConfig.EmailBuilder().build()
         )
@@ -32,44 +48,74 @@ class MainActivity : AppCompatActivity() {
             AuthUI.getInstance()
                 .createSignInIntentBuilder()
                 .setAvailableProviders(providers)
+                .setTheme(R.style.AppTheme)
                 .build(),
             RC_SIGN_IN
         )
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == RC_SIGN_IN) {
-            val response = IdpResponse.fromResultIntent(data)
-            if (resultCode == Activity.RESULT_OK) {
-                val user = FirebaseAuth.getInstance().currentUser
-                textView.text = user!!.displayName
-                Glide.with(this)
-                    .load(user.photoUrl)
-                    .into(imageView)
-            } else {
-                response!!.error!!.errorCode
-            }
-        }
-    }
-
-    private fun signOut() {
-        AuthUI.getInstance()
-            .signOut(this)
-            .addOnCompleteListener {
-            }
     }
 
     companion object {
 
         private const val RC_SIGN_IN = 123
     }
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+
+
+    ////////////////-----------------------------------------------------------------/////////////
 
     private fun db() {
-        val docRef = FirebaseFirestore.getInstance()
+        FirebaseFirestore.getInstance().collection("profiles").document("articles")
+
+        //--------------------------------------
+
+        val article = hashMapOf(
+            "title" to "android",
+            "source" to "sss",
+            "dsafas" to "fasdfas"
+        )
+
+        val docRef = FirebaseFirestore
+            .getInstance()
             .collection("profiles")
             .document("profile")
+
+
+        //-------------------------
 
         val data1 = hashMapOf(
             "favourite" to "article 2",
@@ -79,17 +125,24 @@ class MainActivity : AppCompatActivity() {
                 "isDevtoOn" to true
             )
         )
-        docRef.update(
-            FieldPath.of("sources", "isDevtoOn"), false
-        )
+        docRef
+            .collection("likedArticles")
+            .document("article1")
+            .set(Article("odin", null))
+            .addOnSuccessListener { Log.d("ok", "ok") }
+            .addOnFailureListener { Log.d("ne ok", "ne ok") }
 
-        docRef.get().addOnSuccessListener { document ->
-            if (document != null) {
-                Log.d("111", document.get("liked").toString())
-            } else {
-                Log.d("333", "333")
-            }
-        }.addOnFailureListener { exception -> Log.d("222", "222") }
+//        docRef.get().addOnSuccessListener { document ->
+//            if (document != null) {
+//                val docName = docRef.id
+//
+//                Log.d("docName: ", docName)
+//                Log.d("111", document.get("liked").toString())
+//            } else {
+//                Log.d("333", "333")
+//            }
+//        }.addOnFailureListener { exception -> Log.d("222", "222") }
+
 
         //docRef.set(data1)
 
