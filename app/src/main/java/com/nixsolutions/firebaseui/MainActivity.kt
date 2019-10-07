@@ -41,7 +41,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun startAuth() {
         val providers = arrayListOf(
-            AuthUI.IdpConfig.EmailBuilder().build()
+            AuthUI.IdpConfig.EmailBuilder().build(),
+            AuthUI.IdpConfig.GoogleBuilder().build()
         )
 
         startActivityForResult(
@@ -49,6 +50,7 @@ class MainActivity : AppCompatActivity() {
                 .createSignInIntentBuilder()
                 .setAvailableProviders(providers)
                 .setTheme(R.style.AppTheme)
+                .setLogo(R.mipmap.nixlogo)
                 .build(),
             RC_SIGN_IN
         )
